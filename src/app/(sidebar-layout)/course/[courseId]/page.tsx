@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Course } from "@/types/course/types";
-import { Book, Crown, Plus } from "lucide-react";
+import { Book, Crown, Loader2, Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -37,6 +37,8 @@ export default function CourseDetail() {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [firstLessonId, setFirstLessonId] = useState<string | null>(null);
   const [threadId, setThreadId] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(false);
 
   const params = useParams();
   const { data: session } = useSession();
@@ -74,6 +76,7 @@ export default function CourseDetail() {
     const checkEnrollment = async () => {
       if (session?.user?.id && course?.id) {
         try {
+          setIsCheckingEnrollment(true);
           const result = await checkEnrollmentStatus(
             course.id,
             session.user.id,
@@ -81,6 +84,8 @@ export default function CourseDetail() {
           setIsEnrolled(result.data);
         } catch (err) {
           console.error("Error checking enrollment:", err);
+        } finally {
+          setIsCheckingEnrollment(false);
         }
       }
     };
@@ -122,20 +127,17 @@ export default function CourseDetail() {
     // Handle free courses directly
     if (course.promotionPrice === 0 || course.price === 0) {
       try {
-        // Show loading toast
-        const loadingToast = toast.loading("Đang đăng ký khóa học...");
+        // Set processing state to show loading animation
+        setIsProcessing(true);
 
         // Enroll in the free course
         const result = await enrollCourse({
           courseId: course.id,
           userId: session.user.id,
-          userName: session.user.name,
-          courseName: course.title,
+          userName: session.user.name || "",
+          courseName: course.title || course.name,
           isFree: true,
         });
-
-        // Dismiss loading toast
-        toast.dismiss(loadingToast);
 
         if (result.success) {
           toast.success("Bạn đã đăng ký khóa học thành công!");
@@ -147,6 +149,8 @@ export default function CourseDetail() {
       } catch (error) {
         toast.error("Có lỗi xảy ra khi đăng ký khóa học");
         console.error("Error enrolling in free course:", error);
+      } finally {
+        setIsProcessing(false);
       }
     } else {
       // Redirect to enrollment page for paid courses
@@ -349,13 +353,28 @@ export default function CourseDetail() {
                 </div>
 
                 {/* Enroll/Start Learning Button */}
-                {!isEnrolled ? (
+                {isCheckingEnrollment ? (
+                  <Button className="w-full" size="lg" disabled>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang kiểm tra...
+                  </Button>
+                ) : !isEnrolled ? (
                   <Button
                     className="w-full"
                     size="lg"
                     onClick={handleEnrollClick}
+                    disabled={isProcessing}
                   >
-                    {course.price === 0 ? "Đăng ký ngay" : "Mua khóa học"}
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Đang xử lý...
+                      </>
+                    ) : course.price === 0 ? (
+                      "Đăng ký ngay"
+                    ) : (
+                      "Mua khóa học"
+                    )}
                   </Button>
                 ) : (
                   <Button
@@ -363,7 +382,7 @@ export default function CourseDetail() {
                     size="lg"
                     onClick={handleStartLearningClick}
                   >
-                    Bắt đầu học
+                    Tiếp tục học
                   </Button>
                 )}
 
