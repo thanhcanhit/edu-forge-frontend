@@ -5,6 +5,8 @@ import data from "@emoji-mart/data";
 import { Send, Smile } from "lucide-react";
 import { toast } from "sonner";
 
+import useUserStore from "@/stores/useUserStore";
+
 import { Rating } from "@/components/rating";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -67,6 +69,7 @@ export default function UserInput({
   const [rating, setRating] = useState<number | undefined>(5);
   const newPostInputRef = useRef<HTMLTextAreaElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useUserStore();
 
   // Update content if initialContent changes (for edit mode)
   useEffect(() => {
@@ -170,7 +173,10 @@ export default function UserInput({
       {showAvatar && (
         <Avatar className="w-8 h-8">
           <AvatarImage
-            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUserId}`}
+            src={
+              user?.image ||
+              `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUserId}`
+            }
           />
           <AvatarFallback>
             {currentUserId.slice(0, 2).toUpperCase()}

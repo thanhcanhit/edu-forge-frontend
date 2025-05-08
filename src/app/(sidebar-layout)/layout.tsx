@@ -13,7 +13,7 @@ export default function RootLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarTrigger className="mt-2 ml-2 " />
-        <main className="flex flex-col w-full h-screen overflow-y-auto">
+        <main className="flex flex-col w-full h-screen overflow-y-auto overflow-x-hidden">
           <UserHeader />
           <Toaster />
           {children}

@@ -10,7 +10,7 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 
 import { getLessonById, updateLesson } from "@/actions/courseAction";
 
@@ -131,96 +131,166 @@ export default function EditLessonPage({
   };
 
   if (isLoading) {
-    return <div>Đang tải...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+          <p className="text-slate-500">Đang tải thông tin bài học...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link href={`/admin/courses/${resolvedParams.courseId}`}>
-          <Button variant="outline" size="icon">
-            <ChevronLeft className="h-4 w-4" />
+    <div className="p-6 space-y-6 bg-slate-50 min-h-screen">
+      {/* Header */}
+      <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href={`/admin/courses/${resolvedParams.courseId}`}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-slate-200 hover:bg-slate-100"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <h1 className="text-2xl font-bold text-slate-900">
+              Chỉnh sửa bài học
+            </h1>
+          </div>
+          <Button
+            type="submit"
+            form="lesson-form"
+            disabled={isSubmitting}
+            className="bg-orange-500 hover:bg-orange-600 text-white"
+          >
+            {isSubmitting ? "Đang cập nhật..." : "Cập nhật bài học"}
           </Button>
-        </Link>
-        <h1 className="text-2xl font-bold">Chỉnh sửa bài học</h1>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
-        <div className="space-y-2">
-          <Label htmlFor="title">Tiêu đề bài học</Label>
-          <Input
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
+      <div className="">
+        <form id="lesson-form" onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm space-y-6">
+            <div className="space-y-2">
+              <Label
+                htmlFor="title"
+                className="text-sm font-semibold text-slate-900"
+              >
+                Tiêu đề bài học
+              </Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                className="border-slate-200 focus:ring-black"
+                placeholder="Nhập tiêu đề bài học"
+              />
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="lessonType">Loại bài học</Label>
-          <Select
-            value={lessonType}
-            onValueChange={(value) => setLessonType(value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn loại bài học" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={LessonType.BLOG}>Bài viết</SelectItem>
-              <SelectItem value={LessonType.VIDEO}>Video</SelectItem>
-              <SelectItem value={LessonType.MIXED}>Cả hai</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="lessonType"
+                className="text-sm font-semibold text-slate-900"
+              >
+                Loại bài học
+              </Label>
+              <Select
+                value={lessonType}
+                onValueChange={(value) => setLessonType(value)}
+              >
+                <SelectTrigger className="border-slate-200 focus:ring-black">
+                  <SelectValue placeholder="Chọn loại bài học" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={LessonType.BLOG}>Bài viết</SelectItem>
+                  <SelectItem value={LessonType.VIDEO}>Video</SelectItem>
+                  <SelectItem value={LessonType.MIXED}>Cả hai</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        {(lessonType === LessonType.VIDEO ||
-          lessonType === LessonType.MIXED) && (
-          <div className="space-y-2">
-            <Label htmlFor="videoUrl">URL Video</Label>
-            <Input
-              id="videoUrl"
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-              placeholder="Nhập URL video từ YouTube, Vimeo, ..."
-              required={lessonType === LessonType.VIDEO}
-            />
-          </div>
-        )}
+            {(lessonType === LessonType.VIDEO ||
+              lessonType === LessonType.MIXED) && (
+              <div className="space-y-2">
+                <Label
+                  htmlFor="videoUrl"
+                  className="text-sm font-semibold text-slate-900"
+                >
+                  URL Video
+                </Label>
+                <Input
+                  id="videoUrl"
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  placeholder="Nhập URL video từ YouTube, Vimeo, ..."
+                  required={lessonType === LessonType.VIDEO}
+                  className="border-slate-200 focus:ring-black"
+                />
+              </div>
+            )}
 
-        {(lessonType === LessonType.BLOG ||
-          lessonType === LessonType.MIXED) && (
-          <div className="space-y-2">
-            <Label>Nội dung bài học</Label>
-            <div className="min-h-[500px] border rounded-lg p-4">
-              <BlockNoteView editor={editor} theme="light" />
+            {(lessonType === LessonType.BLOG ||
+              lessonType === LessonType.MIXED) && (
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-900">
+                  Nội dung bài học
+                </Label>
+                <div className="border rounded-lg border-slate-200 overflow-hidden">
+                  <BlockNoteView
+                    editor={editor}
+                    theme="light"
+                    className="min-h-[500px]"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-4 pt-4 border-t border-slate-200">
+              <div className="flex items-center justify-between py-2">
+                <div className="space-y-0.5">
+                  <Label
+                    htmlFor="isFreePreview"
+                    className="text-sm font-semibold text-slate-900"
+                  >
+                    Cho phép xem thử
+                  </Label>
+                  <p className="text-sm text-slate-500">
+                    Học viên có thể xem bài học này mà không cần mua khóa học
+                  </p>
+                </div>
+                <Switch
+                  id="isFreePreview"
+                  checked={isFreePreview}
+                  onCheckedChange={setIsFreePreview}
+                />
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div className="space-y-0.5">
+                  <Label
+                    htmlFor="isPublished"
+                    className="text-sm font-semibold text-slate-900"
+                  >
+                    Xuất bản
+                  </Label>
+                  <p className="text-sm text-slate-500">
+                    Bài học sẽ được hiển thị cho học viên
+                  </p>
+                </div>
+                <Switch
+                  id="isPublished"
+                  checked={isPublished}
+                  onCheckedChange={setIsPublished}
+                />
+              </div>
             </div>
           </div>
-        )}
-
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="isFreePreview"
-              checked={isFreePreview}
-              onCheckedChange={setIsFreePreview}
-            />
-            <Label htmlFor="isFreePreview">Cho phép xem thử</Label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="isPublished"
-              checked={isPublished}
-              onCheckedChange={setIsPublished}
-            />
-            <Label htmlFor="isPublished">Xuất bản</Label>
-          </div>
-        </div>
-
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Đang cập nhật..." : "Cập nhật bài học"}
-        </Button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

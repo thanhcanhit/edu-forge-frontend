@@ -274,7 +274,7 @@ export default function Discussion({ threadId }: { threadId: string }) {
       {/* Floating MessageCircle button */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 z-50 right-8 bg-orange-500 hover:bg-orange-600 rounded-full h-12 w-12 shadow-lg"
+        className="fixed bottom-20 z-50 right-24 bg-orange-500 hover:bg-orange-600 rounded-full h-12 w-12 shadow-lg"
         aria-label="Open discussion"
         size="icon"
       >

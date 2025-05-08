@@ -110,7 +110,11 @@ export function AddChapterDialog({
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
               {isSubmitting ? "Đang tạo..." : "Tạo chương"}
             </Button>
           </div>

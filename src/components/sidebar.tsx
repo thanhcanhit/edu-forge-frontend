@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { cn } from "@/lib/utils";
 import {
   BarChart,
   Bell,
@@ -26,23 +27,29 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-// Menu items.
+// Menu items with color settings
 const getMenuItems = (userRole: string) => {
   const baseItems = [
     {
       title: "Trang chủ",
       url: "/",
       icon: Home,
+      color: "text-blue-500",
+      bgColor: "bg-blue-50",
     },
     {
       title: "Lộ trình",
       url: "/roadmap",
       icon: GraduationCap,
+      color: "text-green-500",
+      bgColor: "bg-green-50",
     },
     {
       title: "Bài viết",
       url: "/blog",
       icon: BookOpen,
+      color: "text-amber-500",
+      bgColor: "bg-amber-50",
     },
   ];
 
@@ -52,16 +59,22 @@ const getMenuItems = (userRole: string) => {
         title: "Quản lý",
         url: "/admin/courses",
         icon: LayoutDashboard,
+        color: "text-gray-600",
+        bgColor: "bg-purple-50",
       },
       {
         title: "Người dùng",
         url: "/admin/users",
         icon: Users,
+        color: "text-gray-600",
+        bgColor: "bg-indigo-50",
       },
       {
         title: "Báo cáo",
         url: "/admin/reports",
         icon: BarChart,
+        color: "text-gray-600",
+        bgColor: "bg-rose-50",
       },
     );
   }
@@ -75,7 +88,7 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar className="w-22 h-full">
+    <Sidebar className="w-22 h-full bg-white border-r">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -92,17 +105,22 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
-                      className="h-20"
+                      className={cn("h-20", isActive && item.bgColor)}
                       isActive={isActive}
                     >
                       <Link
                         href={item.url}
                         className="flex h-10 flex-col items-center justify-center w-full"
                       >
-                        <p>
+                        <p className={cn(item.color)}>
                           <item.icon />
                         </p>
-                        <p className="text-center text-[12px] font-semibold ">
+                        <p
+                          className={cn(
+                            "text-center text-[12px] font-semibold",
+                            isActive ? "text-gray-900" : "text-gray-600",
+                          )}
+                        >
                           {item.title}
                         </p>
                       </Link>
@@ -117,10 +135,10 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenuButton asChild className="mb-10 rounded-full">
           <Link
-            href={"/"}
+            href={"/notifications"}
             className="flex flex-col items-center justify-center w-full h-20"
           >
-            <p>
+            <p className="text-orange-500">
               <Bell />
             </p>
           </Link>

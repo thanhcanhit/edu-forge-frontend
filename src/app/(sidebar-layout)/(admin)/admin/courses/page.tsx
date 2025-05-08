@@ -72,7 +72,6 @@ export default function AdminCoursesPage() {
   );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Pagination state
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -80,10 +79,8 @@ export default function AdminCoursesPage() {
     totalPages: 1,
   });
 
-  // Filter state - by default show all courses (including unpublished)
   const [filters, setFilters] = useState<CourseFilters>({});
 
-  // Fetch categories for filter
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -97,7 +94,6 @@ export default function AdminCoursesPage() {
     fetchCategories();
   }, []);
 
-  // Fetch courses with pagination and filters
   const fetchCourses = async (
     page = pagination.page,
     limit = pagination.limit,
@@ -105,13 +101,25 @@ export default function AdminCoursesPage() {
   ) => {
     try {
       setIsLoading(true);
-      const response = await getAllCourses(courseFilters, page, limit);
+      // Chỉ truyền các giá trị filter khi chúng không phải là "tất cả"
+      const filteredParams = {
+        ...courseFilters,
+        categoryId:
+          courseFilters.categoryId === "all"
+            ? undefined
+            : courseFilters.categoryId,
+        level: courseFilters.level === "" ? undefined : courseFilters.level,
+        isPublished:
+          courseFilters.isPublished === undefined
+            ? undefined
+            : courseFilters.isPublished,
+      };
 
-      // Ensure we have valid data
+      const response = await getAllCourses(filteredParams, page, limit);
+
       if (response && response.data) {
         setCourses(response.data);
 
-        // Ensure we have valid pagination metadata
         if (response.meta) {
           setPagination({
             page: response.meta.page || 1,
@@ -122,7 +130,6 @@ export default function AdminCoursesPage() {
               Math.ceil(response.data.length / (response.meta.limit || 10)),
           });
         } else {
-          // If no meta data, create default pagination
           setPagination({
             page: 1,
             limit: 10,
@@ -149,7 +156,6 @@ export default function AdminCoursesPage() {
 
   const handleDeleteCourse = async (courseId: string) => {
     if (!courseId) return;
-
     setCourseToDelete(courseId);
   };
 
@@ -159,8 +165,6 @@ export default function AdminCoursesPage() {
     try {
       setIsDeleting(true);
       await deleteCourse(courseToDelete);
-
-      // Update the courses list by removing the deleted course
       setCourses(courses.filter((course) => course.id !== courseToDelete));
       setPagination((prev) => ({
         ...prev,
@@ -209,37 +213,39 @@ export default function AdminCoursesPage() {
 
   if (isLoading) {
     return (
-      <div className="w-full">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Quản lý khoá học</h1>
-          <Link href="/admin/courses/create">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Thêm khoá học
-            </Button>
-          </Link>
-        </div>
-        <div className="flex justify-center items-center min-h-[200px]">
-          Đang tải...
-        </div>
+      <div className="flex justify-center items-center min-h-[200px]">
+        Đang tải...
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Quản lý khoá học</h1>
+    <div className="w-full space-y-6 p-6 bg-slate-50">
+      <div className="flex justify-between items-center">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold text-slate-900">
+            Quản lý khoá học
+          </h1>
+          <p className="text-slate-500 text-sm">
+            Quản lý tất cả các khóa học của bạn
+          </p>
+        </div>
         <div className="flex gap-2">
           <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">
+              <Button
+                variant="outline"
+                className="border-slate-200 hover:bg-slate-100"
+              >
                 <Filter className="mr-2 h-4 w-4" /> Lọc
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
-                <DialogTitle>Lọc khóa học</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-slate-900">
+                  Lọc khóa học
+                </DialogTitle>
+                <DialogDescription className="text-slate-500">
                   Chọn các tiêu chí để lọc danh sách khóa học
                 </DialogDescription>
               </DialogHeader>
@@ -250,16 +256,19 @@ export default function AdminCoursesPage() {
                     Danh mục
                   </Label>
                   <Select
-                    value={filters.categoryId || ""}
+                    value={filters.categoryId || "all"}
                     onValueChange={(value) =>
-                      handleFilterChange("categoryId", value || undefined)
+                      handleFilterChange(
+                        "categoryId",
+                        value === "all" ? undefined : value,
+                      )
                     }
                   >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Tất cả danh mục" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tất cả danh mục</SelectItem>
+                      <SelectItem value="all">Tất cả danh mục</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
@@ -274,16 +283,19 @@ export default function AdminCoursesPage() {
                     Cấp độ
                   </Label>
                   <Select
-                    value={filters.level || ""}
+                    value={filters.level || "all"}
                     onValueChange={(value) =>
-                      handleFilterChange("level", value || undefined)
+                      handleFilterChange(
+                        "level",
+                        value === "all" ? undefined : value,
+                      )
                     }
                   >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Tất cả cấp độ" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tất cả cấp độ</SelectItem>
+                      <SelectItem value="all">Tất cả cấp độ</SelectItem>
                       <SelectItem value={CourseLevel.BEGINNER}>
                         Người mới bắt đầu
                       </SelectItem>
@@ -293,7 +305,6 @@ export default function AdminCoursesPage() {
                       <SelectItem value={CourseLevel.ADVANCED}>
                         Nâng cao
                       </SelectItem>
-                      <SelectItem value="ALL_LEVELS">Tất cả cấp độ</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -304,25 +315,30 @@ export default function AdminCoursesPage() {
                   </Label>
                   <Select
                     value={
-                      filters.isPublished !== undefined
-                        ? filters.isPublished.toString()
-                        : ""
+                      filters.isPublished === undefined
+                        ? "all"
+                        : filters.isPublished
+                          ? "true"
+                          : "false"
                     }
                     onValueChange={(value) => {
-                      if (value === "") {
-                        handleFilterChange("isPublished", undefined);
+                      let filterValue;
+                      if (value === "all") {
+                        filterValue = undefined;
+                      } else if (value === "true") {
+                        filterValue = true;
                       } else {
-                        handleFilterChange("isPublished", value === "true");
+                        filterValue = false;
                       }
+                      handleFilterChange("isPublished", filterValue);
                     }}
                   >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Tất cả trạng thái" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tất cả trạng thái</SelectItem>
+                      <SelectItem value="all">Tất cả trạng thái</SelectItem>
                       <SelectItem value="true">Đã xuất bản</SelectItem>
-                      <SelectItem value="false">Bản nháp</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -367,56 +383,74 @@ export default function AdminCoursesPage() {
               </div>
 
               <DialogFooter>
-                <Button variant="outline" onClick={resetFilters}>
+                <Button
+                  variant="outline"
+                  onClick={resetFilters}
+                  className="border-slate-200"
+                >
                   Đặt lại
                 </Button>
-                <Button onClick={applyFilters}>Áp dụng</Button>
+                <Button
+                  onClick={applyFilters}
+                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                >
+                  Áp dụng
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
 
           <Link href="/admin/courses/create">
-            <Button>
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
               <Plus className="mr-2 h-4 w-4" /> Thêm khoá học
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Tên khoá học</TableHead>
-              <TableHead>Danh mục</TableHead>
-              <TableHead>Giá</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead className="text-right">Thao tác</TableHead>
+            <TableRow className="bg-slate-50 hover:bg-slate-100/50">
+              <TableHead className="text-slate-700">Tên khoá học</TableHead>
+              <TableHead className="text-slate-700">Danh mục</TableHead>
+              <TableHead className="text-slate-700">Giá</TableHead>
+              <TableHead className="text-slate-700">Trạng thái</TableHead>
+              <TableHead className="text-right text-slate-700">
+                Thao tác
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {courses.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-8 text-slate-500"
+                >
                   Chưa có khóa học nào
                 </TableCell>
               </TableRow>
             ) : (
               courses.map((course) => (
-                <TableRow key={course.id}>
-                  <TableCell className="font-medium">{course.title}</TableCell>
-                  <TableCell>{course.category?.name}</TableCell>
-                  <TableCell>
+                <TableRow key={course.id} className="hover:bg-slate-50">
+                  <TableCell className="font-medium text-slate-900">
+                    {course.title}
+                  </TableCell>
+                  <TableCell className="text-slate-700">
+                    {course.category?.name}
+                  </TableCell>
+                  <TableCell className="text-slate-700">
                     {course.price === 0
                       ? "Miễn phí"
                       : `${course.price.toLocaleString()} ${course.currency}`}
                   </TableCell>
                   <TableCell>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs ${
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
                         course.isPublished
                           ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
+                          : "bg-orange-100 text-orange-800"
                       }`}
                     >
                       {course.isPublished ? "Đã xuất bản" : "Bản nháp"}
@@ -425,12 +459,20 @@ export default function AdminCoursesPage() {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Link href={`/course/${course.id}`}>
-                        <Button variant="outline" size="icon">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:bg-slate-100 border-slate-200"
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
                       <Link href={`/admin/courses/${course.id}`}>
-                        <Button variant="outline" size="icon">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:bg-slate-100 border-slate-200"
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                       </Link>
@@ -439,7 +481,7 @@ export default function AdminCoursesPage() {
                           <Button
                             variant="outline"
                             size="icon"
-                            className="text-red-500"
+                            className="text-red-500 hover:bg-red-50 border-red-200"
                             onClick={() => handleDeleteCourse(course.id)}
                           >
                             <Trash className="h-4 w-4" />
@@ -447,22 +489,25 @@ export default function AdminCoursesPage() {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>
+                            <AlertDialogTitle className="text-slate-900">
                               Xác nhận xóa khóa học
                             </AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogDescription className="text-slate-500">
                               Bạn có chắc chắn muốn xóa khóa học "{course.title}
                               "? Hành động này không thể hoàn tác.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel disabled={isDeleting}>
+                            <AlertDialogCancel
+                              disabled={isDeleting}
+                              className="border-slate-200"
+                            >
                               Hủy
                             </AlertDialogCancel>
                             <AlertDialogAction
                               onClick={confirmDeleteCourse}
                               disabled={isDeleting}
-                              className="bg-red-500 hover:bg-red-600"
+                              className="bg-red-500 hover:bg-red-600 text-white"
                             >
                               {isDeleting ? "Đang xóa..." : "Xóa"}
                             </AlertDialogAction>
@@ -478,7 +523,6 @@ export default function AdminCoursesPage() {
         </Table>
       </div>
 
-      {/* Pagination */}
       {!isLoading && courses.length > 0 && (
         <div className="mt-6 flex flex-col items-center">
           <Pagination className="mb-2">
@@ -486,11 +530,11 @@ export default function AdminCoursesPage() {
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => handlePageChange(pagination.page - 1)}
-                  className={
+                  className={`${
                     pagination.page <= 1
                       ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
+                      : "cursor-pointer hover:bg-slate-100"
+                  } border-slate-200`}
                 />
               </PaginationItem>
 
@@ -499,7 +543,6 @@ export default function AdminCoursesPage() {
                 (_, i) => i + 1,
               )
                 .filter((page) => {
-                  // Show first page, last page, current page, and pages around current page
                   return (
                     page === 1 ||
                     page === pagination.totalPages ||
@@ -507,7 +550,6 @@ export default function AdminCoursesPage() {
                   );
                 })
                 .map((page, index, array) => {
-                  // Add ellipsis where needed
                   const prevPage = array[index - 1];
                   const showEllipsisBefore = prevPage && prevPage !== page - 1;
 
@@ -515,14 +557,18 @@ export default function AdminCoursesPage() {
                     <React.Fragment key={page}>
                       {showEllipsisBefore && (
                         <PaginationItem>
-                          <PaginationEllipsis />
+                          <PaginationEllipsis className="text-slate-400" />
                         </PaginationItem>
                       )}
                       <PaginationItem>
                         <PaginationLink
                           isActive={page === pagination.page}
                           onClick={() => handlePageChange(page)}
-                          className="cursor-pointer"
+                          className={`cursor-pointer ${
+                            page === pagination.page
+                              ? "bg-orange-500 text-white hover:bg-orange-600"
+                              : "hover:bg-slate-100 border-slate-200"
+                          }`}
                         >
                           {page}
                         </PaginationLink>
@@ -534,11 +580,11 @@ export default function AdminCoursesPage() {
               <PaginationItem>
                 <PaginationNext
                   onClick={() => handlePageChange(pagination.page + 1)}
-                  className={
+                  className={`${
                     pagination.page >= pagination.totalPages
                       ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
+                      : "cursor-pointer hover:bg-slate-100"
+                  } border-slate-200`}
                 />
               </PaginationItem>
             </PaginationContent>

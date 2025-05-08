@@ -8,6 +8,7 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useDiscussionStore } from "@/stores/useDiscussion";
+import useUserStore from "@/stores/useUserStore";
 
 import { Rating } from "@/components/rating";
 import {
@@ -74,6 +75,7 @@ export function PostCard({
     addReply,
     currentUserName,
   } = useDiscussionStore();
+  const { user } = useUserStore();
   const MAX_REPLY_DEPTH = 1;
 
   // Get the effective parent ID for replies
@@ -184,9 +186,18 @@ export function PostCard({
           </div>
         )}
         <Avatar className="w-8 h-8">
-          <AvatarImage
-            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${post.authorId}`}
-          />
+          {post.authorId === currentUserId && user?.image ? (
+            <AvatarImage src={user.image} alt={currentUserName || "You"} />
+          ) : (
+            <AvatarImage
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${post.authorId}`}
+              alt={
+                post.authorId === currentUserId
+                  ? currentUserName || "You"
+                  : post.authorId.slice(0, 8)
+              }
+            />
+          )}
           <AvatarFallback>{getInitials(post.authorId)}</AvatarFallback>
         </Avatar>
 

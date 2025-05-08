@@ -188,7 +188,6 @@ export const createCourse = async (courseData: {
   level: string;
   price: number;
   currency: string;
-  ownerId: string;
   isPublished: boolean;
   isHasCertificate: boolean;
   tags?: string[];
@@ -442,5 +441,44 @@ export const getAllCategories = async (): Promise<Category[]> => {
     return data;
   } catch (error) {
     throw error;
+  }
+};
+
+export const uploadImage = async (
+  file: File,
+  bucket: string = "courses",
+  folder?: string,
+) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("bucket", bucket);
+    if (folder) {
+      formData.append("folder", folder);
+    }
+
+    const response = await fetch(
+      "https://storage.eduforge.io.vn/api/v1/storage/upload",
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Lỗi khi tải lên hình ảnh");
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      url: data.url,
+    };
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    return {
+      success: false,
+      message: "Không thể tải lên hình ảnh",
+    };
   }
 };

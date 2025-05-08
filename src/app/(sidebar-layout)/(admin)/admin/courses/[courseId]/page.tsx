@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { AddChapterDialog } from "./AddChapterDialog";
-import { AddLessonDialog } from "./AddLessonDialog";
 
 export default function CourseDetailPage({
   params,
@@ -53,57 +52,91 @@ export default function CourseDetailPage({
 
   if (isLoading) {
     return (
-      <div className="p-8 flex justify-center items-center min-h-[200px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+          <p className="text-slate-500">Đang tải thông tin khóa học...</p>
+        </div>
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="p-8 flex justify-center items-center min-h-[200px]">
-        <div className="text-muted-foreground">Không tìm thấy khóa học</div>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] gap-4">
+        <div className="text-slate-500 text-center">
+          <p className="text-lg font-semibold">Không tìm thấy khóa học</p>
+          <p className="text-sm">
+            Khóa học này có thể đã bị xóa hoặc không tồn tại
+          </p>
+        </div>
+        <Link href="/admin/courses">
+          <Button variant="outline" className="gap-2">
+            <ChevronLeft className="h-4 w-4" />
+            Quay lại danh sách
+          </Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
+    <div className="p-6 space-y-6 bg-slate-50 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/courses">
-            <Button variant="outline" size="icon">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold">{course.title}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant={course.isPublished ? "default" : "secondary"}>
-                {course.isPublished ? "Đã xuất bản" : "Chưa xuất bản"}
-              </Badge>
-              <Badge variant="outline">{course.level}</Badge>
+      <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/admin/courses">
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-slate-200 hover:bg-slate-100"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">
+                {course.title}
+              </h1>
+              <div className="flex items-center gap-2 mt-2 cursor-pointer">
+                <Badge
+                  variant={course.isPublished ? "default" : "secondary"}
+                  className={
+                    course.isPublished ? "bg-green-500" : "bg-orange-500"
+                  }
+                >
+                  {course.isPublished ? "Đã xuất bản" : "Chưa xuất bản"}
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className="border-slate-200 text-slate-600"
+                >
+                  {course.level}
+                </Badge>
+              </div>
             </div>
           </div>
+          <Link href={`/admin/courses/${resolvedParams.courseId}/edit`}>
+            <Button className="bg-black hover:bg-gray-800 text-white gap-2">
+              <Edit className="h-4 w-4" />
+              Chỉnh sửa khóa học
+            </Button>
+          </Link>
         </div>
-        <Link href={`/admin/courses/${resolvedParams.courseId}/edit`}>
-          <Button variant="outline">
-            <Edit className="h-4 w-4 mr-2" />
-            Chỉnh sửa
-          </Button>
-        </Link>
       </div>
 
       <div className="grid grid-cols-3 gap-6">
         {/* Course Info */}
-        <div className="col-span-1 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Thông tin khóa học</CardTitle>
+        <div className="space-y-6">
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader className="border-b border-slate-100 bg-slate-50/50">
+              <CardTitle className="text-slate-900">
+                Thông tin khóa học
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="aspect-video relative rounded-lg overflow-hidden">
+            <CardContent className="space-y-6 pt-6">
+              <div className="aspect-video relative rounded-lg overflow-hidden border border-slate-200">
                 <img
                   src={course.thumbnailUrl || "/placeholder-course.jpg"}
                   alt={course.title}
@@ -111,53 +144,77 @@ export default function CourseDetailPage({
                 />
               </div>
 
-              <div>
-                <h3 className="font-semibold mb-1">Mô tả</h3>
-                <p className="text-sm text-muted-foreground">
-                  {course.description}
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-1">Danh mục</h3>
-                <p className="text-sm text-muted-foreground">
-                  {course.category?.name || "Chưa phân loại"}
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-1">Giá</h3>
-                <p className="text-sm text-muted-foreground">
-                  {course.price === 0
-                    ? "Miễn phí"
-                    : formatPrice(course.price, course.currency)}
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-1">Tổng quan</h3>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>Số chương: {course.chapters?.length}</p>
-                  <p>Số bài học: {course.totalLessons}</p>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-2">
+                    Mô tả
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {course.description}
+                  </p>
                 </div>
-              </div>
 
-              <div>
-                <h3 className="font-semibold mb-1">Yêu cầu</h3>
-                <ul className="text-sm text-muted-foreground list-disc pl-4 space-y-1">
-                  {course.requirements.map((req, index) => (
-                    <li key={index}>{req}</li>
-                  ))}
-                </ul>
-              </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-2">
+                    Danh mục
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    {course.category?.name || "Chưa phân loại"}
+                  </p>
+                </div>
 
-              <div>
-                <h3 className="font-semibold mb-1">Mục tiêu khóa học</h3>
-                <ul className="text-sm text-muted-foreground list-disc pl-4 space-y-1">
-                  {course.learningOutcomes.map((outcome, index) => (
-                    <li key={index}>{outcome}</li>
-                  ))}
-                </ul>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-2">
+                    Giá
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    {course.price === 0
+                      ? "Miễn phí"
+                      : formatPrice(course.price, course.currency)}
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-2">
+                    Tổng quan
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border border-slate-100">
+                    <div>
+                      <p className="text-sm text-slate-500">Số chương</p>
+                      <p className="text-lg font-semibold text-slate-900">
+                        {course.chapters?.length || 0}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">Số bài học</p>
+                      <p className="text-lg font-semibold text-slate-900">
+                        {course.totalLessons || 0}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-2">
+                    Yêu cầu
+                  </h3>
+                  <ul className="text-sm text-slate-600 list-disc pl-4 space-y-2">
+                    {course.requirements.map((req, index) => (
+                      <li key={index}>{req}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-2">
+                    Mục tiêu khóa học
+                  </h3>
+                  <ul className="text-sm text-slate-600 list-disc pl-4 space-y-2">
+                    {course.learningOutcomes.map((outcome, index) => (
+                      <li key={index}>{outcome}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -165,41 +222,32 @@ export default function CourseDetailPage({
 
         {/* Chapters and Lessons */}
         <div className="col-span-2 space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
-            <Button onClick={() => setIsAddChapterOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Thêm chương mới
-            </Button>
-          </div>
-
-          <CourseContent
-            courseId={resolvedParams.courseId}
-            chapters={(course.chapters || []).map((chapter) => ({
-              ...chapter,
-              lessons: chapter.lessons || [],
-            }))}
-            onOrderUpdate={fetchCourseData}
-          />
-
-          {/* Add Lesson Button - Hidden but needed for the dialog */}
-          <Button
-            className="hidden"
-            onClick={() => {
-              if (course.chapters && course.chapters.length > 0) {
-                setSelectedChapterId(course.chapters[0].id);
-                setIsAddLessonOpen(true);
-              } else {
-                toast({
-                  title: "Lỗi",
-                  description: "Bạn cần tạo chương trước khi tạo bài học",
-                  variant: "destructive",
-                });
-              }
-            }}
-          >
-            Thêm bài học
-          </Button>
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader className="border-b border-slate-100 bg-slate-50/50">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-slate-900">
+                  Nội dung khóa học
+                </CardTitle>
+                <Button
+                  onClick={() => setIsAddChapterOpen(true)}
+                  className="bg-orange-500 hover:bg-orange-600 text-white gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Thêm chương mới
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <CourseContent
+                courseId={resolvedParams.courseId}
+                chapters={(course.chapters || []).map((chapter) => ({
+                  ...chapter,
+                  lessons: chapter.lessons || [],
+                }))}
+                onOrderUpdate={fetchCourseData}
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
 
@@ -207,14 +255,6 @@ export default function CourseDetailPage({
         courseId={resolvedParams.courseId}
         open={isAddChapterOpen}
         onOpenChange={setIsAddChapterOpen}
-        onSuccess={fetchCourseData}
-      />
-
-      <AddLessonDialog
-        courseId={resolvedParams.courseId}
-        chapterId={selectedChapterId}
-        open={isAddLessonOpen}
-        onOpenChange={setIsAddLessonOpen}
         onSuccess={fetchCourseData}
       />
     </div>
