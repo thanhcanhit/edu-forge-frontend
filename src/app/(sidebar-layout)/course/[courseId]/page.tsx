@@ -115,14 +115,11 @@ export default function CourseDetail() {
     fetchThread();
   }, [params.courseId, user]);
 
-  const handleEnrollClick = async () => {
-    if (!session?.user) {
-      toast.error("Vui lòng đăng nhập để đăng ký khóa học");
+  const handleEnrollCourse = async () => {
+    if (!session) {
       router.push("/auth/login");
       return;
     }
-
-    if (!course) return;
 
     // Handle free courses directly
     if (course.promotionPrice === 0 || course.price === 0) {
@@ -153,8 +150,8 @@ export default function CourseDetail() {
         setIsProcessing(false);
       }
     } else {
-      // Redirect to enrollment page for paid courses
-      router.push(`/enrollment/${course.id}?courseID=${course.id}`);
+      // Đối với khóa học trả phí, chuyển thẳng đến trang thanh toán
+      router.push(`/payment/checkout/${course.id}`);
     }
   };
 
@@ -362,7 +359,7 @@ export default function CourseDetail() {
                   <Button
                     className="w-full"
                     size="lg"
-                    onClick={handleEnrollClick}
+                    onClick={handleEnrollCourse}
                     disabled={isProcessing}
                   >
                     {isProcessing ? (
