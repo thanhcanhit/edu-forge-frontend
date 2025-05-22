@@ -352,7 +352,10 @@ export const getUserRecommendations = async (
 
 export const getUserInfo = async (userId: string): Promise<UserInfo> => {
   try {
-    const { data } = await postApi.get(`/v1/posts/author/${userId}`);
+    const response = await fetch(
+      `http://eduforge.io.vn:8081/api/v1/posts/author/${userId}`,
+    );
+    const data = await response.json();
     return data.data;
   } catch (error) {
     throw error;
