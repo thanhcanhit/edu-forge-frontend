@@ -84,10 +84,7 @@ export interface PaginatedResponse<T> {
 }
 
 export interface UserInfo {
-  _id: string;
-  email: string;
   name: string;
-  isActive: boolean;
   image: string;
 }
 
@@ -355,9 +352,8 @@ export const getUserRecommendations = async (
 
 export const getUserInfo = async (userId: string): Promise<UserInfo> => {
   try {
-    const userApi = await AxiosFactory.getApiInstance("users");
-    const { data } = await userApi.get(`/internal/${userId}`);
-    return data;
+    const { data } = await postApi.get(`/v1/posts/author/${userId}`);
+    return data.data;
   } catch (error) {
     throw error;
   }
