@@ -4,11 +4,11 @@ import axios from "axios";
 
 import useUserStore from "@/stores/useUserStore";
 
-const API_URL = "http://eduforge.io.vn:8081/api/v1";
 const USER_INFO_URL = "http://eduforge.io.vn:3001/dashboard/internal/user";
 const COURSE_SERVICE_API_KEY = "sk_course_service_12345";
 
-const postApi = await AxiosFactory.getApiInstance("post");
+// const postApi = await AxiosFactory.getApiInstance("post");
+const API_URL = "http://eduforge.io.vn:8081/api/v1";
 
 export interface Post {
   id: string;
@@ -86,10 +86,7 @@ export interface PaginatedResponse<T> {
 }
 
 export interface UserInfo {
-  _id: string;
-  email: string;
   name: string;
-  isActive: boolean;
   image: string;
 }
 
@@ -107,8 +104,9 @@ export const getAllPosts = async (
     if (filters.currentUserId)
       params.append("currentUserId", filters.currentUserId);
 
-    const { data } = await postApi.get(`/posts?${params.toString()}`);
-    return data;
+    // const { data } = await postApi.get(`/posts?${params.toString()}`);
+    const response = await axios.get(`${API_URL}/posts?${params.toString()}`);
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -122,8 +120,11 @@ export const getPostById = async (
     const params = new URLSearchParams();
     if (currentUserId) params.append("currentUserId", currentUserId);
 
-    const { data } = await postApi.get(`/posts/${postId}?${params.toString()}`);
-    return data;
+    // const { data } = await postApi.get(`/posts/${postId}?${params.toString()}`);
+    const response = await axios.get(
+      `${API_URL}/posts/${postId}?${params.toString()}`,
+    );
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -144,11 +145,14 @@ export const getPostsByUserId = async (
     if (filters.currentUserId)
       params.append("currentUserId", filters.currentUserId);
 
-    const { data } = await postApi.get(
-      `/posts/user/${userId}?${params.toString()}`,
+    // const { data } = await postApi.get(
+    //   `/posts/user/${userId}?${params.toString()}`,
+    // );
+    const response = await axios.get(
+      `${API_URL}/posts/user/${userId}?${params.toString()}`,
     );
     console.log("User id: ", userId);
-    return data;
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -167,10 +171,13 @@ export const getPostsByTag = async (
     if (filters.currentUserId)
       params.append("currentUserId", filters.currentUserId);
 
-    const { data } = await postApi.get(
-      `/posts/tag/${tag}?${params.toString()}`,
+    // const { data } = await postApi.get(
+    //   `/posts/tag/${tag}?${params.toString()}`,
+    // );
+    const response = await axios.get(
+      `${API_URL}/posts/tag/${tag}?${params.toString()}`,
     );
-    return data;
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -191,10 +198,13 @@ export const getPostsBySeriesId = async (
     if (filters.currentUserId)
       params.append("currentUserId", filters.currentUserId);
 
-    const { data } = await postApi.get(
-      `/posts/series/${seriesId}?${params.toString()}`,
+    // const { data } = await postApi.get(
+    //   `/posts/series/${seriesId}?${params.toString()}`,
+    // );
+    const response = await axios.get(
+      `${API_URL}/posts/series/${seriesId}?${params.toString()}`,
     );
-    return data;
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -214,8 +224,11 @@ export const getPostsWithoutSeries = async (
     if (filters.currentUserId)
       params.append("currentUserId", filters.currentUserId);
 
-    const { data } = await postApi.get(`/posts/no-series?${params.toString()}`);
-    return data;
+    // const { data } = await postApi.get(`/posts/no-series?${params.toString()}`);
+    const response = await axios.get(
+      `${API_URL}/posts/no-series?${params.toString()}`,
+    );
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -236,10 +249,13 @@ export const getUserPostsWithoutSeries = async (
     if (filters.currentUserId)
       params.append("currentUserId", filters.currentUserId);
 
-    const { data } = await postApi.get(
-      `/posts/user/${userId}/no-series?${params.toString()}`,
+    // const { data } = await postApi.get(
+    //   `/posts/user/${userId}/no-series?${params.toString()}`,
+    // );
+    const response = await axios.get(
+      `${API_URL}/posts/user/${userId}/no-series?${params.toString()}`,
     );
-    return data;
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -259,8 +275,11 @@ export const searchPosts = async (
     if (filters.currentUserId)
       params.append("currentUserId", filters.currentUserId);
 
-    const { data } = await postApi.get(`/posts/search?${params.toString()}`);
-    return data;
+    // const { data } = await postApi.get(`/posts/search?${params.toString()}`);
+    const response = await axios.get(
+      `${API_URL}/posts/search?${params.toString()}`,
+    );
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -270,8 +289,9 @@ export const createPost = async (
   post: Partial<Post>,
 ): Promise<ApiResponse<Post>> => {
   try {
-    const { data } = await postApi.post("/posts", post);
-    return data;
+    // const { data } = await postApi.post("/posts", post);
+    const response = await axios.post(`${API_URL}/posts`, post);
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -282,8 +302,9 @@ export const updatePost = async (
   post: Partial<Post>,
 ): Promise<ApiResponse<Post>> => {
   try {
-    const { data } = await postApi.put(`/posts/${postId}`, post);
-    return data;
+    // const { data } = await postApi.put(`/posts/${postId}`, post);
+    const response = await axios.put(`${API_URL}/posts/${postId}`, post);
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -293,8 +314,9 @@ export const deletePost = async (
   postId: string,
 ): Promise<ApiResponse<void>> => {
   try {
-    const { data } = await postApi.delete(`/posts/${postId}`);
-    return data;
+    // const { data } = await postApi.delete(`/posts/${postId}`);
+    const response = await axios.delete(`${API_URL}/posts/${postId}`);
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -305,10 +327,13 @@ export const togglePostLike = async (
   userId: string,
 ): Promise<ApiResponse<Post>> => {
   try {
-    const { data } = await postApi.post(
-      `/posts/${postId}/like?userId=${userId}`,
+    // const { data } = await postApi.post(
+    //   `/posts/${postId}/like?userId=${userId}`,
+    // );
+    const response = await axios.post(
+      `${API_URL}/posts/${postId}/like?userId=${userId}`,
     );
-    return data;
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -319,10 +344,13 @@ export const addPostView = async (
   userId: string,
 ): Promise<ApiResponse<Post>> => {
   try {
-    const { data } = await postApi.post(
-      `/posts/${postId}/view?userId=${userId}`,
+    // const { data } = await postApi.post(
+    //   `/posts/${postId}/view?userId=${userId}`,
+    // );
+    const response = await axios.post(
+      `${API_URL}/posts/${postId}/view?userId=${userId}`,
     );
-    return data;
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -341,13 +369,16 @@ export const getUserRecommendations = async (
     if (filters.currentUserId)
       params.append("currentUserId", filters.currentUserId);
 
-    const { data } = await axios.get(
+    // const { data } = await postApi.get(
+    //   `/v1/recommendations/users/${userId}?${params.toString()}`,
+    // );
+    const response = await axios.get(
       `${API_URL}/recommendations/users/${userId}?${params.toString()}`,
     );
     return {
       success: true,
       message: "Operation successful",
-      data: data,
+      data: response.data,
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
@@ -357,13 +388,11 @@ export const getUserRecommendations = async (
 
 export const getUserInfo = async (userId: string): Promise<UserInfo> => {
   try {
-    const { data } = await axios.get(`${USER_INFO_URL}/${userId}`, {
-      headers: {
-        "x-api-key": COURSE_SERVICE_API_KEY,
-        "x-service-name": "courseService",
-      },
-    });
-    return data;
+    const response = await fetch(
+      `http://eduforge.io.vn:8081/api/v1/posts/author/${userId}`,
+    );
+    const data = await response.json();
+    return data.data;
   } catch (error) {
     throw error;
   }

@@ -1,7 +1,9 @@
 // "use server";
 import { AxiosFactory } from "@/lib/axios";
+import axios from "axios";
 
-const storageAxios = await AxiosFactory.getApiInstance("storage");
+// const storageAxios = await AxiosFactory.getApiInstance("storage");
+const API_URL = "http://eduforge.io.vn:3020/api/v1/storage";
 
 interface UploadResponse {
   url: string;
@@ -31,7 +33,12 @@ export async function uploadFile(
     formData.append("folder", folder);
   }
 
-  const { data } = await storageAxios.post("/upload", formData, {
+  // const { data } = await storageAxios.post("/upload", formData, {
+  //   headers: {
+  //     "Content-Type": "multipart/form-data",
+  //   },
+  // });
+  const { data } = await axios.post(`${API_URL}/upload`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -59,7 +66,12 @@ export async function uploadMultipleFiles(
     formData.append("folder", folder);
   }
 
-  const { data } = await storageAxios.post("/upload-multiple", formData, {
+  // const { data } = await storageAxios.post("/upload-multiple", formData, {
+  //   headers: {
+  //     "Content-Type": "multipart/form-data",
+  //   },
+  // });
+  const { data } = await axios.post(`${API_URL}/upload-multiple`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -72,7 +84,8 @@ export async function uploadMultipleFiles(
  * @param url The public URL of the file to delete
  */
 export async function deleteFile(url: string): Promise<DeleteResponse> {
-  const { data } = await storageAxios.post("/delete", { url });
+  // const { data } = await storageAxios.post("/delete", { url });
+  const { data } = await axios.post(`${API_URL}/delete`, { url });
   return data;
 }
 
@@ -83,6 +96,7 @@ export async function deleteFile(url: string): Promise<DeleteResponse> {
 export async function deleteMultipleFiles(
   urls: string[],
 ): Promise<DeleteResponse> {
-  const { data } = await storageAxios.post("/delete-multiple", { urls });
+  // const { data } = await storageAxios.post("/delete-multiple", { urls });
+  const { data } = await axios.post(`${API_URL}/delete-multiple`, { urls });
   return data;
 }
