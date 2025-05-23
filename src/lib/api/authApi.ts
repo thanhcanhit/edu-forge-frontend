@@ -653,6 +653,7 @@ class AuthApi {
     },
   ) {
     try {
+      userData.role = userData.role?.toUpperCase();
       console.log("check userData >>> ", userData, userId);
       const response = await fetch(`${API_URL}/dashboard/${userId}`, {
         method: "PATCH",
