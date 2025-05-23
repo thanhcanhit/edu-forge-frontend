@@ -1,7 +1,9 @@
 "use server";
 
+import { AxiosFactory } from "@/lib/axios";
 import axios from "axios";
 
+// const seriesApi = await AxiosFactory.getApiInstance("series");
 const API_URL = "http://eduforge.io.vn:8081/api/v1";
 
 export interface Series {
@@ -73,7 +75,7 @@ export interface ApiResponse<T> {
 
 export const getAllSeries = async (filters?: SeriesFilters) => {
   try {
-    const response = await axios.get<ApiResponse<PaginatedResponse<Series>>>(
+    const { data } = await axios.get<ApiResponse<PaginatedResponse<Series>>>(
       `${API_URL}/series`,
       {
         params: {
@@ -84,7 +86,7 @@ export const getAllSeries = async (filters?: SeriesFilters) => {
         },
       },
     );
-    return response.data;
+    return data;
   } catch (error) {
     throw error;
   }
@@ -92,7 +94,7 @@ export const getAllSeries = async (filters?: SeriesFilters) => {
 
 export const getSeriesById = async (id: string, currentUserId?: string) => {
   try {
-    const response = await axios.get<ApiResponse<Series>>(
+    const { data } = await axios.get<ApiResponse<Series>>(
       `${API_URL}/series/${id}`,
       {
         params: {
@@ -100,7 +102,7 @@ export const getSeriesById = async (id: string, currentUserId?: string) => {
         },
       },
     );
-    return response.data;
+    return data;
   } catch (error) {
     throw error;
   }
@@ -111,8 +113,7 @@ export const getSeriesByUserId = async (
   filters?: SeriesFilters,
 ) => {
   try {
-    console.log(userId);
-    const response = await axios.get<ApiResponse<PaginatedResponse<Series>>>(
+    const { data } = await axios.get<ApiResponse<PaginatedResponse<Series>>>(
       `${API_URL}/series/user/${userId}`,
       {
         params: {
@@ -123,7 +124,7 @@ export const getSeriesByUserId = async (
         },
       },
     );
-    return response.data;
+    return data;
   } catch (error) {
     throw error;
   }
@@ -137,7 +138,7 @@ export const createSeries = async (data: {
   isPublished: boolean;
 }) => {
   try {
-    const response = await axios.post<ApiResponse<Series>>(
+    const { data: responseData } = await axios.post<ApiResponse<Series>>(
       `${API_URL}/series`,
       {
         ...data,
@@ -162,7 +163,7 @@ export const updateSeries = async (
   },
 ) => {
   try {
-    const response = await axios.put<ApiResponse<Series>>(
+    const { data: responseData } = await axios.put<ApiResponse<Series>>(
       `${API_URL}/series/${id}`,
       data,
     );
@@ -174,7 +175,7 @@ export const updateSeries = async (
 
 export const deleteSeries = async (id: string, userId: string) => {
   try {
-    const response = await axios.delete<ApiResponse<void>>(
+    const { data } = await axios.delete<ApiResponse<void>>(
       `${API_URL}/series/${id}`,
       {
         params: { userId },
@@ -193,7 +194,7 @@ export const addPostToSeries = async (
   userId: string,
 ) => {
   try {
-    const response = await axios.post<ApiResponse<Series>>(
+    const { data } = await axios.post<ApiResponse<Series>>(
       `${API_URL}/series/${seriesId}/posts/${postId}`,
       null,
       {
@@ -212,7 +213,7 @@ export const removePostFromSeries = async (
   userId: string,
 ) => {
   try {
-    const response = await axios.delete<ApiResponse<Series>>(
+    const { data } = await axios.delete<ApiResponse<Series>>(
       `${API_URL}/series/${seriesId}/posts/${postId}`,
       {
         params: { userId },
@@ -231,7 +232,7 @@ export const updatePostOrderInSeries = async (
   userId: string,
 ) => {
   try {
-    const response = await axios.put<ApiResponse<Series>>(
+    const { data } = await axios.put<ApiResponse<Series>>(
       `${API_URL}/series/${seriesId}/posts/${postId}/order`,
       null,
       {
@@ -249,7 +250,7 @@ export const searchSeries = async (
   filters?: SeriesFilters,
 ) => {
   try {
-    const response = await axios.get<ApiResponse<PaginatedResponse<Series>>>(
+    const { data } = await axios.get<ApiResponse<PaginatedResponse<Series>>>(
       `${API_URL}/series/search`,
       {
         params: {
@@ -259,7 +260,7 @@ export const searchSeries = async (
         },
       },
     );
-    return response.data;
+    return data;
   } catch (error) {
     throw error;
   }
