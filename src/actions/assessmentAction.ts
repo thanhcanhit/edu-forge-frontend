@@ -8,8 +8,16 @@ import {
   ScoringPolicy,
   TestType,
 } from "@/types/assessment/types";
+import axios from "axios";
 
-const assessmentApi = await AxiosFactory.getApiInstance("assessment");
+// const assessmentApi = await AxiosFactory.getApiInstance("assessment");
+let assessmentApi = axios.create({
+  baseURL: "http://eduforge.io.vn:3005/api/v1",
+  timeout: 30000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 export async function getQuestions(params: {
   courseId?: string;
